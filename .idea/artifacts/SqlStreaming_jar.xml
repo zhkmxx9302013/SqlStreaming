@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="SqlStreaming:jar">
+    <output-path>$USER_HOME$/Desktop</output-path>
+    <root id="archive" name="SqlStreaming.jar">
+      <element id="module-output" name="SqlStreaming" />
+    </root>
+  </artifact>
+</component>

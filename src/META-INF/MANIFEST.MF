@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Class-Path: /home/zhkmxx_spark/spark/spark-1.6.2-bin-hadoop2.6/lib/spa
+ rk-examples-1.6.2-hadoop2.6.0.jar /home/apache-hive-0.13.0-bin/lib/my
+ sql-connector-java-5.1.33-bin.jar /home/Driver/ojdbc6.jar
+Main-Class: com.zhkmxx.scala.app.KafkaStream
+
