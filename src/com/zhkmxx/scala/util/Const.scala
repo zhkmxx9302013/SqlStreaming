@@ -10,13 +10,13 @@ class Const {
 }
 
 object Const{
-  val USERNAME = "SNP"//"SYS as sysdba"
+  val USERNAME = "SNP"//
 
-  val PASSWORD = "SNP"//"Liaoningsheng093"
+  val PASSWORD = "SNP"//
 
   val DRIVER_CLASS_NAME = "oracle.jdbc.driver.OracleDriver"
 
-  val ORACLE_DRIVER_URL = "10.2.32.1"
+  val ORACLE_DRIVER_URL = "10.2.32.1"//inner-nw
 
   val ORACLE_DRIVER_PORT = "1521"
 

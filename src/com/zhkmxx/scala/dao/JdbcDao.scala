@@ -1,6 +1,6 @@
 package com.zhkmxx.scala.dao
 
-import java.sql.Connection
+import java.sql.{Connection, Timestamp}
 import java.util.Properties
 
 import com.zhkmxx.scala.util.Const
@@ -63,7 +63,10 @@ class JdbcDao {
     connectProperties
   }
 
-  //执行将DataFrame存入到Oracle
+  /**
+    * 执行将统计结果存入到Oracle
+    * @param dataSet
+    */
   def execute2Oracle(dataSet: Tuple8[String,String,Int,String,Int,Int,String,String]):Unit={
     initOracleDialect
     val conn = initOracleConn
@@ -76,12 +79,13 @@ class JdbcDao {
     val colIndex = dataSet._6
     val sumValue = dataSet._7.toLong
     val institutionGUID = dataSet._8
+    val sumTableName = "s_" + sumTable
 
     if(rowIndex == -1 || colIndex == -1){
       println("[SNP_ERROR]Cell index is wrong (rowIndex:" + rowIndex + ", colIndex:" + colIndex + ")")
     }
 
-    val ps = conn.prepareStatement("insert into  " + sumTable + "(RECID,RECVER,UNIT_CODE,GRID_NAME,ROW_INDEX,COL_INDEX,SUM_VALUE) values(utl_raw.cast_to_raw(?),?,?,?,?,?,?)")
+    val ps = conn.prepareStatement("insert into  " + sumTableName + "(RECID,RECVER,UNIT_CODE,GRID_NAME,ROW_INDEX,COL_INDEX,SUM_VALUE) values(utl_raw.cast_to_raw(?),?,?,?,?,?,?)")
     try{
       ps.setString(1, recId)
       ps.setInt(2, recVer)
@@ -98,7 +102,53 @@ class JdbcDao {
       ps.close()
       conn.close()
     }
+  }
 
+  /**
+    * 进度跟踪存入进度表
+    * @param currentFormulaCount
+    * @param formulaCount
+    * @param taskID
+    */
+  def process2Oracle(currentFormulaCount:Int, formulaCount:Int, taskID:String, taskRecid:String, status:Int):Unit = {
+    initOracleDialect
+    val conn = initOracleConn
+    var processRate = currentFormulaCount / formulaCount * 100 + "%"
+
+    if(currentFormulaCount == 1 ){
+      val ps = conn.prepareStatement("insert into " + Const.PROCESS_TABLE + "(TASKID,STARTTIME,PROCESSRATE,RECID,RECVER) values(utl_raw.cast_to_raw(?),?,?,utl_raw.cast_to_raw(?)),?")
+      try{
+        val start = 10000;
+        val end = 99999;
+        val rnd = new scala.util.Random
+        val today = new java.util.Date();
+        val recId = "TASK" + (start + rnd.nextInt( (end - start) + 1 ))
+        println(">>>>>>>>" + recId + " %% " + taskID + " %% " + new java.sql.Timestamp(today.getTime()) + " %% " + processRate + "<<<<<<<<<<<<<")
+        ps.setString(4, recId)
+        ps.setString(1, taskID)
+        ps.setTimestamp(2, new java.sql.Timestamp(today.getTime()))
+        ps.setString(3, processRate)
+        ps.setInt(5, 0)
+        ps.executeUpdate()
+      }catch{
+        case e:Exception => e.printStackTrace()
+      }finally {
+        ps.close()
+        conn.close()
+      }
+    }else{
+      val ps = conn.prepareStatement("update " + Const.PROCESS_TABLE + " set PROCESSRATE=? where TASKID=utl_raw.cast_to_raw(?)")
+      try{
+        ps.setString(1, processRate)
+        ps.setString(2, taskID)
+        ps.executeUpdate()
+      }catch{
+        case e:Exception => e.printStackTrace()
+      }finally {
+        ps.close()
+        conn.close()
+      }
+    }
 
   }
 
