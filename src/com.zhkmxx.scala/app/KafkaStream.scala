@@ -67,8 +67,8 @@ object KafkaStream {
           val formulaCount = kafkaContentMap("FORMULACOUNT").toString.toInt
 
 
-          if(!tempTaskID.equals(taskID)) {
-            tempTaskID = taskID
+          if(!tempTaskID.equals(taskRecid)) {
+            tempTaskID = taskRecid
             currentFormulaCount.setValue(1)
           } else{
             currentFormulaCount += 1
@@ -91,12 +91,12 @@ object KafkaStream {
             storageDataSet.collect.foreach(sumResultValue => {
               val dataSet = (recId,sumTable,recVer,unitCode,rowIndex,colIndex,sumResultValue,institutionGUID)
               jdbc.execute2Oracle(dataSet)
-              jdbc.process2Oracle(currentFormulaCount.value, formulaCount, taskID, taskRecid)
+              jdbc.process2Oracle(currentFormulaCount.value, formulaCount, taskID, taskRecid,Const.PROCESS_STATUS_NORMAL)
             })
 
           } else{
             println(Const.PARSE_FORMULA_FAILURE + " => " + ExpressPaser)
-            jdbc.process2Oracle(currentFormulaCount.value, formulaCount, taskID,taskRecid)
+            jdbc.process2Oracle(currentFormulaCount.value, formulaCount, taskID,taskRecid,Const.PROCESS_STATUS_ERROR)
           }
 
         })

@@ -113,22 +113,29 @@ class JdbcDao {
   def process2Oracle(currentFormulaCount:Int, formulaCount:Int, taskID:String, taskRecid:String, status:Int):Unit = {
     initOracleDialect
     val conn = initOracleConn
-    var processRate = currentFormulaCount / formulaCount * 100 + "%"
-
-    if(currentFormulaCount == 1 ){
-      val ps = conn.prepareStatement("insert into " + Const.PROCESS_TABLE + "(TASKID,STARTTIME,PROCESSRATE,RECID,RECVER) values(utl_raw.cast_to_raw(?),?,?,utl_raw.cast_to_raw(?)),?")
+    var processRate = currentFormulaCount * 100 / formulaCount  + "%"
+    if(status == Const.PROCESS_STATUS_NORMAL){
+      var updateSQL = ""
+      val today = new java.util.Date()
+      if(processRate != "100%"){
+        updateSQL = "update " +
+                    Const.PROCESS_TABLE +
+                    " set PROCESSRATE=? " +
+                    " where TASKID=? and RECID=?"
+        println("[NOT 100%]"+updateSQL+","+processRate+","+taskID+","+taskRecid)
+      }else if(processRate == "100%"){
+        updateSQL = "update " +
+                    Const.PROCESS_TABLE +
+                    " set PROCESSRATE=?, STATUS=3, ENDTIME=?" +
+                    " where TASKID=? and RECID=?"
+        println("[IS 100%]"+updateSQL+","+processRate+","+taskID+","+taskRecid)
+      }
+      val ps = conn.prepareStatement(updateSQL)
       try{
-        val start = 10000;
-        val end = 99999;
-        val rnd = new scala.util.Random
-        val today = new java.util.Date();
-        val recId = "TASK" + (start + rnd.nextInt( (end - start) + 1 ))
-        println(">>>>>>>>" + recId + " %% " + taskID + " %% " + new java.sql.Timestamp(today.getTime()) + " %% " + processRate + "<<<<<<<<<<<<<")
-        ps.setString(4, recId)
-        ps.setString(1, taskID)
+        ps.setString(1, processRate)
         ps.setTimestamp(2, new java.sql.Timestamp(today.getTime()))
-        ps.setString(3, processRate)
-        ps.setInt(5, 0)
+        ps.setString(3, taskID)
+        ps.setString(4, taskRecid)
         ps.executeUpdate()
       }catch{
         case e:Exception => e.printStackTrace()
@@ -136,11 +143,16 @@ class JdbcDao {
         ps.close()
         conn.close()
       }
-    }else{
-      val ps = conn.prepareStatement("update " + Const.PROCESS_TABLE + " set PROCESSRATE=? where TASKID=utl_raw.cast_to_raw(?)")
+    }else if(status == Const.PROCESS_STATUS_ERROR){
+      val ps = conn.prepareStatement("update " +
+                                      Const.PROCESS_TABLE +
+                                      " set PROCESSRATE=?, STATUS=5" +
+                                      " where TASKID=? and RECID=?")
+      println("[NOT 100%]"+processRate+","+taskID+","+taskRecid)
       try{
         ps.setString(1, processRate)
         ps.setString(2, taskID)
+        ps.setString(3, taskRecid)
         ps.executeUpdate()
       }catch{
         case e:Exception => e.printStackTrace()
@@ -149,7 +161,6 @@ class JdbcDao {
         conn.close()
       }
     }
-
   }
 
 }
