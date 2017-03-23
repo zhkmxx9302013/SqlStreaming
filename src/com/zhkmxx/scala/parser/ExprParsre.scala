@@ -66,7 +66,7 @@ class ExprParsre extends StandardTokenParsers{
     case ident1~"["~ident2~","~"SUM"~"]" => "SELECT SUM("+ ident2.toString() +") FROM " + ident1.toString()
   }
 
-  def parserAll[T]( p : Parser[T], input :String) = {
+  def parserAll[T]( p : Parser[T], input :String) : ParseResult[T]= {
     phrase(p)( new lexical.Scanner(input))
   }
 

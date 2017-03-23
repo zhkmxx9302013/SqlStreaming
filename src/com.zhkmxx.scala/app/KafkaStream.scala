@@ -4,20 +4,24 @@ import java.net.URL
 import java.util.Properties
 
 import com.zhkmxx.scala.dao.JdbcDao
-import com.zhkmxx.scala.parser.ExprParsre
+import com.zhkmxx.scala.parser.{ExprParsre, InListJGDMParser}
 import com.zhkmxx.scala.util.{Const, JsonParser}
 import kafka.serializer.StringDecoder
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.jdbc.{JdbcDialect, JdbcDialects, JdbcType}
 import org.apache.spark.sql.types._
+
+import scala.util.parsing.combinator.Parsers
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.kafka._
+
+import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 
 /**
   * Created by zhaozihe on 2016/12/13.
   */
-object KafkaStream {
+object KafkaStream extends StandardTokenParsers{
   def main(args: Array[String]): Unit = {
     val brokers = Const.BROKER_LIST
     val jdbc = new JdbcDao
@@ -39,7 +43,7 @@ object KafkaStream {
       if (rdd.isEmpty()) {
         println("[SNP-INFO-APP]No data received![SNP-INFO-APP]")
       } else {
-        val parser = new ExprParsre
+
         val hiveContext = new HiveContext(rdd.context)
         import hiveContext.implicits._
         import hiveContext.sql
@@ -74,9 +78,19 @@ object KafkaStream {
             currentFormulaCount += 1
           }
 
-          val ExpressPaser = parser.parserAll(parser.expr, formula)//Parsing
-          var hiveSql = ""
+          val ExpressPaser = {
+            if(formula.contains("InList([JGDM]")){
+              val exprParser = new InListJGDMParser
+              val InListJGDMPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
+              InListJGDMPaser
+            }else {
+              val exprParser = new ExprParsre
+              var ExpressPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
+              ExpressPaser
+            }
+          }
 
+          var hiveSql = ""
           if(ExpressPaser.successful){
 
             hiveSql = ExpressPaser.get
@@ -107,6 +121,7 @@ object KafkaStream {
     ssc.start()
     ssc.awaitTermination()
   }
+
 
 
 }
