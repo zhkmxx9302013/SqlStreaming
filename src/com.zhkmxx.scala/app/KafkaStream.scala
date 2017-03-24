@@ -4,7 +4,7 @@ import java.net.URL
 import java.util.Properties
 
 import com.zhkmxx.scala.dao.JdbcDao
-import com.zhkmxx.scala.parser.{ExprParsre, InListJGDMParser}
+import com.zhkmxx.scala.parser.{ExprParsre, InListDCDXDMPaser, InListJGDMParser}
 import com.zhkmxx.scala.util.{Const, JsonParser}
 import kafka.serializer.StringDecoder
 import org.apache.spark.SparkConf
@@ -83,7 +83,11 @@ object KafkaStream extends StandardTokenParsers{
               val exprParser = new InListJGDMParser
               val InListJGDMPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
               InListJGDMPaser
-            }else {
+            }else if(formula.contains("InList([DCDXDM]")){
+              val exprParser = new InListDCDXDMPaser
+              val InListDCDXDMPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
+              InListDCDXDMPaser
+            } else {
               val exprParser = new ExprParsre
               var ExpressPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
               ExpressPaser

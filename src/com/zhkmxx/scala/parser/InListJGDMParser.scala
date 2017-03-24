@@ -6,6 +6,7 @@ import scala.util.parsing.combinator.token.StdTokens
 
 /**
   * Created by zhao on 2017/3/23.
+  * DNASQL,机构代码模糊匹配语法分析器
   */
 class InListJGDMParser extends StandardTokenParsers{
   lexical.delimiters += ("=",">=","<=",">","<","!=","&&","||","[","]",",","(",")")

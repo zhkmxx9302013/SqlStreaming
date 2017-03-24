@@ -1,6 +1,6 @@
 package com.zhkmxx.scala.test
 
-import com.zhkmxx.scala.parser.{ExprParsre, InListJGDMParser}
+import com.zhkmxx.scala.parser.{ExprParsre, InListDCDXDMPaser, InListJGDMParser}
 import com.zhkmxx.scala.util.Const
 
 /**
@@ -10,7 +10,7 @@ object testExprParser {
   def main(args: Array[String]): Unit = {
     val parser = new InListJGDMParser
     val str = "{\"SUMTABLE\":\"S_0111\",\"RECVER\":0,\"UNITCODE\":\"320000\",\"ROWINDEX\":1,\"COLINDEX\":1,\"FORMULA\":\"if SNP_R601[H003]=\\\"1\\\"  then SNP_R601[RECID,COUNT]\",\"INSTITUTIONGUID\":\"INSTITUTID123SDFEWR\"}"
-    val formula = "if(InList([JGDM],\"\")) then SNP_R601[H211,SUM]"
+    val formula = "if(InList([DCDXDM],\"\")) then SNP_R601[H211,SUM]"
 //    val result = parser.parserAll(parser.expr, inputString)
 
     val ExpressPaser = {
@@ -18,7 +18,11 @@ object testExprParser {
         val exprParser = new InListJGDMParser
         val InListJGDMPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
         InListJGDMPaser
-      }else {
+      }else if(formula.contains("InList([DCDXDM]")){
+        val exprParser = new InListDCDXDMPaser
+        val InListDCDXDMPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
+        InListDCDXDMPaser
+      } else {
         val exprParser = new ExprParsre
         var ExpressPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
         ExpressPaser

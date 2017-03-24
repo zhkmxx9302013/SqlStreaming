@@ -7,6 +7,7 @@ import scala.util.parsing.combinator.token.StdTokens
 
 /**
   * Created by zhao on 2016/12/27.
+  * DNASQL常规语法分析器
   */
 
 /**
