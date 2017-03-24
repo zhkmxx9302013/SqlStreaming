@@ -22,11 +22,11 @@ class InListJGDMParser extends StandardTokenParsers{
 
   def expr_back: Parser[String] = ident ~ "[" ~ ident ~ "," ~ ("SUM"|"COUNT") ~ "]" ^^ {
     case ident1~"["~ident2~","~"COUNT"~"]" => "SELECT COUNT("+ ident1.toString +"."+ ident2.toString +") " +
-                                              "FROM (" + ident1.toString + " LEFT JOIN MD_ORG ON " +
-                                              "(" + ident1.toString +".UNITID=MD_ORG.RECID))"
+                                              "FROM " + ident1.toString + " LEFT OUTER JOIN MD_ORG ON " +
+                                              "(" + ident1.toString +".UNITID=MD_ORG.RECID)"
     case ident1~"["~ident2~","~"SUM"~"]" => "SELECT SUM("+ ident1.toString +"."+ ident2.toString +") " +
-                                            "FROM (" + ident1.toString + " LEFT JOIN MD_ORG ON " +
-                                            "(" + ident1.toString +".UNITID=MD_ORG.RECID))"
+                                            "FROM " + ident1.toString + " LEFT OUTER JOIN MD_ORG ON " +
+                                            "(" + ident1.toString +".UNITID=MD_ORG.RECID)"
   }
 
   def parserAll[T]( p : Parser[T], input :String): ParseResult[T]= {

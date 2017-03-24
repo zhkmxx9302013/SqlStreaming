@@ -97,7 +97,13 @@ object KafkaStream extends StandardTokenParsers{
             val hiveQueryResultDF = sql(hiveSql)//Hive Query Result DataFrame
             val hiveQueryRDD = hiveQueryResultDF.rdd
             val storageDataSet = hiveQueryRDD.map(row => {
-              val result = row.getDouble(0).toInt.toString
+              val result = {
+                if(row.get(0) != null){
+                  row.getDouble(0).toString
+                }else{
+                  "".toString
+                }
+              }
               result
             })
             //Write to Oracle

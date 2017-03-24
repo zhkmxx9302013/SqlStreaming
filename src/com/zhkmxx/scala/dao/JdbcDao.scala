@@ -77,7 +77,7 @@ class JdbcDao {
     val unitCode = dataSet._4
     val rowIndex = dataSet._5
     val colIndex = dataSet._6
-    val sumValue = dataSet._7.toLong
+    val sumValueStr = dataSet._7
     val institutionGUID = dataSet._8
     val sumTableName = "s_" + sumTable
 
@@ -85,23 +85,29 @@ class JdbcDao {
       println("[SNP_ERROR]Cell index is wrong (rowIndex:" + rowIndex + ", colIndex:" + colIndex + ")")
     }
 
-    val ps = conn.prepareStatement("insert into  " + sumTableName + "(RECID,RECVER,UNIT_CODE,GRID_NAME,ROW_INDEX,COL_INDEX,SUM_VALUE) values(utl_raw.cast_to_raw(?),?,?,?,?,?,?)")
-    try{
-      ps.setString(1, recId)
-      ps.setInt(2, recVer)
-      ps.setString(3, unitCode)
-      ps.setString(4, sumTable)
-      ps.setInt(5, rowIndex)
-      ps.setInt(6, colIndex)
-      ps.setLong(7, sumValue)
+    if(sumValueStr!=""){
+      val sumValue = sumValueStr.toDouble
+      val ps = conn.prepareStatement("insert into  " + sumTableName + "(RECID,RECVER,UNIT_CODE,GRID_NAME,ROW_INDEX,COL_INDEX,SUM_VALUE) values(utl_raw.cast_to_raw(?),?,?,?,?,?,?)")
+      try{
+        ps.setString(1, recId)
+        ps.setInt(2, recVer)
+        ps.setString(3, unitCode)
+        ps.setString(4, sumTable)
+        ps.setInt(5, rowIndex)
+        ps.setInt(6, colIndex)
+        ps.setDouble(7, sumValue)
 
-      ps.executeUpdate()
-    }catch{
-      case e:Exception => e.printStackTrace()
-    }finally {
-      ps.close()
+        ps.executeUpdate()
+      }catch{
+        case e:Exception => e.printStackTrace()
+      }finally {
+        ps.close()
+        conn.close()
+      }
+    }else{
       conn.close()
     }
+
   }
 
   /**
@@ -120,29 +126,42 @@ class JdbcDao {
       if(processRate != "100%"){
         updateSQL = "update " +
                     Const.PROCESS_TABLE +
-                    " set PROCESSRATE=? " +
+                    " set PROCESSRATE=?" +
                     " where TASKID=? and RECID=?"
         println("[NOT 100%]"+updateSQL+","+processRate+","+taskID+","+taskRecid)
+        val ps = conn.prepareStatement(updateSQL)
+        try{
+          ps.setString(1, processRate)
+          ps.setString(2, taskID)
+          ps.setString(3, taskRecid)
+          ps.executeUpdate()
+        }catch{
+          case e:Exception => e.printStackTrace()
+        }finally {
+          ps.close()
+          conn.close()
+        }
       }else if(processRate == "100%"){
         updateSQL = "update " +
                     Const.PROCESS_TABLE +
                     " set PROCESSRATE=?, STATUS=3, ENDTIME=?" +
                     " where TASKID=? and RECID=?"
         println("[IS 100%]"+updateSQL+","+processRate+","+taskID+","+taskRecid)
+        val ps = conn.prepareStatement(updateSQL)
+        try{
+          ps.setString(1, processRate)
+          ps.setTimestamp(2, new java.sql.Timestamp(today.getTime()))
+          ps.setString(3, taskID)
+          ps.setString(4, taskRecid)
+          ps.executeUpdate()
+        }catch{
+          case e:Exception => e.printStackTrace()
+        }finally {
+          ps.close()
+          conn.close()
+        }
       }
-      val ps = conn.prepareStatement(updateSQL)
-      try{
-        ps.setString(1, processRate)
-        ps.setTimestamp(2, new java.sql.Timestamp(today.getTime()))
-        ps.setString(3, taskID)
-        ps.setString(4, taskRecid)
-        ps.executeUpdate()
-      }catch{
-        case e:Exception => e.printStackTrace()
-      }finally {
-        ps.close()
-        conn.close()
-      }
+
     }else if(status == Const.PROCESS_STATUS_ERROR){
       val ps = conn.prepareStatement("update " +
                                       Const.PROCESS_TABLE +
