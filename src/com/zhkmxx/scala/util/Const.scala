@@ -26,9 +26,15 @@ object Const{
 
   val APP_NAME = "SNP_STREAMING"
 
-  val SPARK_CLUSTER_MASTER_URL = "yarn-client"//"spark://server4:7077"
+  val SPARK_SERIALIZER = "org.apache.spark.serializer.KryoSerializer"
 
-  val SPARK_STREAMING_INTERVAL = 15
+  val SPARK_TMP_LOG_DIR = "~/tmp/SNP_SPARK_LOG"
+
+  val SPARK_CLUSTER_MASTER_URL = "yarn-cluster"//"spark://server4:7077"
+
+  val SPARK_CHECKPOINT_DIR = "hdfs://server4:9000/user/hadoop/spark/snp_checkpoint"
+
+  val SPARK_STREAMING_INTERVAL = 10
 
   //进度表(Oracle)
   val PROCESS_TABLE = "SNP_TASKEXECUTIONMONITOR"

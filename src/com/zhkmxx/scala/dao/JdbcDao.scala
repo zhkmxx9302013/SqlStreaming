@@ -12,7 +12,7 @@ import org.apache.spark.sql.types._
 /**
   * Created by zhaozihe on 2017/1/19.
   */
-class JdbcDao {
+class JdbcDao extends Serializable{
   //初始化Oracle方言
   def initOracleDialect:Unit = {
     val OracleDialect = new JdbcDialect {
@@ -116,9 +116,10 @@ class JdbcDao {
     * @param formulaCount
     * @param taskID
     */
-  def process2Oracle(currentFormulaCount:Int, formulaCount:Int, taskID:String, taskRecid:String, status:Int):Unit = {
+  def process2Oracle(currentFormulaCount:Int, formulaCount:Int, taskID:String, taskRecid:String, status:Int):Boolean= {
     initOracleDialect
     val conn = initOracleConn
+    var isCompeleted = false
     var processRate = currentFormulaCount * 100 / formulaCount  + "%"
     if(status == Const.PROCESS_STATUS_NORMAL){
       var updateSQL = ""
@@ -154,14 +155,14 @@ class JdbcDao {
           ps.setString(3, taskID)
           ps.setString(4, taskRecid)
           ps.executeUpdate()
+          isCompeleted = true
         }catch{
-          case e:Exception => e.printStackTrace()
+          case e:Exception => e.printStackTrace(); isCompeleted = false
         }finally {
           ps.close()
           conn.close()
         }
       }
-
     }else if(status == Const.PROCESS_STATUS_ERROR){
       val ps = conn.prepareStatement("update " +
                                       Const.PROCESS_TABLE +
@@ -180,6 +181,7 @@ class JdbcDao {
         conn.close()
       }
     }
+    isCompeleted
   }
 
 }

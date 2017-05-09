@@ -1,4 +1,4 @@
-package com.zhkmxx.scala.com.zhkmxx.scala.bean
+package com.zhkmxx.scala.bean
 
 import scala.beans.BeanProperty
 
