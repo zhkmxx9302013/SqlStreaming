@@ -3,8 +3,9 @@ package com.zhkmxx.scala.app
 import java.net.URL
 import java.util.Properties
 
+import com.zhkmxx.scala.ParserFactory.PaserClassifier
 import com.zhkmxx.scala.dao.JdbcDao
-import com.zhkmxx.scala.parser.{ExprParsre, InListDCDXDMPaser, InListJGDMParser}
+import com.zhkmxx.scala.parser.{InListDCDXDMPaser, InListJGDMParser, SingleConditionParser}
 import com.zhkmxx.scala.util.{Const, JsonParser}
 import kafka.serializer.StringDecoder
 import org.apache.log4j.LogManager
@@ -92,19 +93,9 @@ object KafkaStream extends Serializable{
           }
 
           val ExpressPaser = {
-            if(formula.contains("InList([JGDM]")){
-              val exprParser = new InListJGDMParser
-              val InListJGDMPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
-              InListJGDMPaser
-            }else if(formula.contains("InList([DCDXDM]")){
-              val exprParser = new InListDCDXDMPaser
-              val InListDCDXDMPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
-              InListDCDXDMPaser
-            } else {
-              val exprParser = new ExprParsre
-              var ExpressPaser = exprParser.parserAll(exprParser.expr, formula)//Parsing
-              ExpressPaser
-            }
+            val classifier = new PaserClassifier
+            val paserObj = classifier.classifyParser(formula)
+            paserObj.parserAll(paserObj.expr, formula)
           }
 
           var hiveSql = ""

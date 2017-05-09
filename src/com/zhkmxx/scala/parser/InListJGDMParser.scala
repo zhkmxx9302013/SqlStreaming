@@ -11,7 +11,7 @@ import scala.util.parsing.combinator.token.StdTokens
   * DNASQL,机构代码模糊匹配语法分析器
   * SELECT SUM(SNP_R601.H321) FROM SNP_R601 left semi join MD_ORG on (SNP_R601.UNITID = MD_ORG.RECID and MD_ORG.STDCODE LIKE '36%')
   */
-class InListJGDMParser extends StandardTokenParsers with InListParser{
+class InListJGDMParser extends InListParser{
   lexical.delimiters += ("=",">=","<=",">","<","!=","&&","||","[","]",",","(",")")
   lexical.reserved   += ("if","then","SUM","COUNT","AND","OR","InList","JGDM")
 

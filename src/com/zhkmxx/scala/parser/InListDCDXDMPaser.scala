@@ -9,7 +9,7 @@ import scala.util.parsing.combinator.syntactical.StandardTokenParsers
   * DNASQL,调查对象代码模糊匹配语法分析器
   * SELECT SUM(SNP_R601.H321) FROM SNP_R601 left semi join SNP_TARGET on (SNP_R601.UNITID = SNP_TARGET.RECID and SNP_TARGET.STDCODE LIKE '36%')
   */
-class InListDCDXDMPaser extends StandardTokenParsers with InListParser{
+class InListDCDXDMPaser extends InListParser{
   lexical.delimiters += ("=",">=","<=",">","<","!=","&&","||","[","]",",","(",")")
   lexical.reserved   += ("if","then","SUM","COUNT","AND","OR","InList","DCDXDM")
 

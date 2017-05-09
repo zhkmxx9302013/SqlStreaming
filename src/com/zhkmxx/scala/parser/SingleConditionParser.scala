@@ -1,5 +1,7 @@
 package com.zhkmxx.scala.parser
 
+import com.zhkmxx.scala.IParser.{SingleParser, TraitParser}
+
 import scala.Some
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.combinator.syntactical.StandardTokenParsers
@@ -20,7 +22,7 @@ import scala.util.parsing.combinator.token.StdTokens
   * expr-back ::= tableName "[" valueName "," operator "]"
   * expr ::= "if" expr-front "then" expr-back
   */
-class ExprParsre extends StandardTokenParsers{
+class SingleConditionParser extends SingleParser{
   lexical.delimiters += ("=",">=","<=",">","<","!=","&&","||","[","]",",","(",")")
   lexical.reserved   += ("if","then","SUM","COUNT","AND","OR")
 
