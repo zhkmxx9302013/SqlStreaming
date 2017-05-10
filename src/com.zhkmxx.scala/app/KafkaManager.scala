@@ -18,11 +18,7 @@ import com.zhkmxx.scala.app.KafkaCluster.LeaderOffset
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.Decoder
-/**
-  * @author litaoxiao
-  * 千万注意包名称
-  *
-  */
+
 class KafkaManager(val kafkaParams: Map[String, String]) extends Serializable {
   @transient lazy val log = LogManager.getLogger(this.getClass)
   private val kc = new KafkaCluster(kafkaParams)
